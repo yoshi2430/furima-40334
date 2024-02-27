@@ -3,7 +3,7 @@ class Item < ApplicationRecord
 
   has_one_attached :image
 
-  belongs_to :shipping_fee_burden
+  
 
   extend ActiveHash::Associations::ActiveRecordExtensions
    belongs_to :category
