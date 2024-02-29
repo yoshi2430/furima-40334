@@ -17,13 +17,13 @@ class ItemsController < ApplicationController
     if user_signed_in? && current_user == @item.user
       @item.destroy
       redirect_to root_path
+    else
+      redirect_to root_path
     end
   end
 
   def edit
     if current_user != @item.user
-      redirect_to root_path
-    else
       redirect_to root_path
     end
   end
