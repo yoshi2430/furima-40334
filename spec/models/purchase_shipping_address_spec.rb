@@ -2,7 +2,9 @@ require 'rails_helper'
 
 RSpec.describe PurchaseShippingAddress, type: :model do
   before do
-    @purchase_shipping_address = FactoryBot.build(:purchase_shipping_address)
+    item = FactoryBot.create(:item)
+    user = FactoryBot.create(:user)
+    @purchase_shipping_address = FactoryBot.build(:purchase_shipping_address, user_id: user.id, item_id: item.id)
   end
 
   describe '購入情報の保存' do
@@ -63,6 +65,31 @@ RSpec.describe PurchaseShippingAddress, type: :model do
         @purchase_shipping_address.token = nil
         @purchase_shipping_address.valid?
         expect(@purchase_shipping_address.errors.full_messages).to include("Token can't be blank")
+      end
+
+      it 'user_idが空では登録できないこと' do
+        @purchase_shipping_address.user_id = nil
+        @purchase_shipping_address.valid?
+        expect(@purchase_shipping_address.errors.full_messages).to include("User can't be blank")
+      end
+
+      it 'item_idが空では登録できないこと' do
+        @purchase_shipping_address.item_id = nil
+        @purchase_shipping_address.valid?
+        expect(@purchase_shipping_address.errors.full_messages).to include("Item can't be blank")
+      end
+
+
+      it '電話番号が9桁以下では登録できないこと' do
+        @purchase_shipping_address.phone_number = '090123456'
+        @purchase_shipping_address.valid?
+        expect(@purchase_shipping_address.errors.full_messages).to include("Phone number is invalid")
+      end
+
+      it '電話番号が12桁以上では登録できないこと' do
+        @purchase_shipping_address.phone_number = '090123456789'
+        @purchase_shipping_address.valid?
+        expect(@purchase_shipping_address.errors.full_messages).to include("Phone number is invalid")
       end
     end
   end

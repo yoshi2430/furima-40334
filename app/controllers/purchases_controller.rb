@@ -1,9 +1,11 @@
 class PurchasesController < ApplicationController
   before_action :authenticate_user!, only: [:new, :index]
+  before_action :find_item, only: [:index, :create]
+  before_action :redirect_if_conditions_met, only: [:index, :create]
+  before_action :set_gon_public_key, only: [:index, :create]
+
+
   def index
-    @item = Item.find(params[:item_id])
-    redirect_to root_path if current_user == @item.user || @item.purchase.present?
-    gon.public_key = ENV["PAYJP_PUBLIC_KEY"]
     @purchase_shipping_address = PurchaseShippingAddress.new
   end
 
@@ -12,17 +14,13 @@ class PurchasesController < ApplicationController
   end
 
   def create
-    @item = Item.find(params[:item_id])
-    redirect_to root_path if current_user == @item.user || @item.purchase.present?
-
-    @purchase_shipping_address = PurchaseShippingAddress.new(purchase_params)
+   @purchase_shipping_address = PurchaseShippingAddress.new(purchase_params)
     pay_item
-    if @purchase_shipping_address.save(current_user)
+     if @purchase_shipping_address.save(current_user)
       redirect_to root_path
-    else
-      gon.public_key = ENV["PAYJP_PUBLIC_KEY"]
+     else
       render :index, status: :unprocessable_entity
-    end
+     end
   end
 
   
@@ -40,5 +38,17 @@ class PurchasesController < ApplicationController
         card: purchase_params[:token],
         currency: 'jpy'   
         )
+  end
+
+  def find_item
+    @item = Item.find(params[:item_id])
+  end
+
+  def redirect_if_conditions_met
+    redirect_to root_path if current_user == @item.user || @item.purchase.present?
+  end
+
+  def set_gon_public_key
+    gon.public_key = ENV["PAYJP_PUBLIC_KEY"]
   end
 end
