@@ -15,11 +15,13 @@ class PurchasesController < ApplicationController
 
   def create
    @purchase_shipping_address = PurchaseShippingAddress.new(purchase_params)
-    pay_item
-     if @purchase_shipping_address.save(current_user)
-      redirect_to root_path
+    
+     if @purchase_shipping_address.valid? 
+        pay_item
+        @purchase_shipping_address.save(current_user)
+        redirect_to root_path
      else
-      render :index, status: :unprocessable_entity
+        render :index, status: :unprocessable_entity
      end
   end
 
